@@ -161,10 +161,11 @@
 //!
 //! # fn main() {}
 //! ```
+#![no_std]
 #![warn(missing_docs)]
 #![doc(html_root_url="https://docs.rs/foreign-types/0.1.0")]
 
-use std::cell::UnsafeCell;
+use core::cell::UnsafeCell;
 
 /// An opaque type used to define `ForeignTypeRef` types.
 ///
