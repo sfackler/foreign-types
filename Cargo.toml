@@ -2,5 +2,10 @@
 name = "foreign-types"
 version = "0.1.0"
 authors = ["Steven Fackler <sfackler@gmail.com>"]
+license = "MIT/Apache-2.0"
+description = "A framework for Rust wrappers over C APIs"
+repository = "https://github.com/sfackler/foreign-types"
+documentation = "https://docs.rs/foreign-types/0.1.0/foreign_types"
+readme = "README.md"
 
 [dependencies]

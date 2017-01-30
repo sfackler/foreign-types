@@ -161,12 +161,14 @@
 //!
 //! # fn main() {}
 //! ```
+#![warn(missing_docs)]
+#![doc(html_root_url="https://docs.rs/foreign-types/0.1.0")]
+
 use std::cell::UnsafeCell;
 
 /// An opaque type used to define `ForeignTypeRef` types.
 ///
-/// A type designed to implement `ForeignTypeRef` should simply be a newtype wrapper around this
-/// type. It has an `UnsafeCell` internally to inform the compiler about aliasability.
+/// A type implementing `ForeignTypeRef` should simply be a newtype wrapper around this type.
 pub struct Opaque(UnsafeCell<()>);
 
 /// A type implemented by wrappers over foreign types.
