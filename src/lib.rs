@@ -190,16 +190,19 @@ pub trait ForeignTypeRef: Sized {
     type CType;
 
     /// Constructs a shared instance of this type from its raw type.
+    #[inline]
     unsafe fn from_ptr<'a>(ptr: *mut Self::CType) -> &'a Self {
         &*(ptr as *mut _)
     }
 
     /// Constructs a mutable reference of this type from its raw type.
+    #[inline]
     unsafe fn from_ptr_mut<'a>(ptr: *mut Self::CType) -> &'a mut Self {
         &mut *(ptr as *mut _)
     }
 
     /// Returns a raw pointer to the wrapped value.
+    #[inline]
     fn as_ptr(&self) -> *mut Self::CType {
         self as *const _ as *mut _
     }
@@ -242,12 +245,14 @@ macro_rules! foreign_type {
             type CType = $ctype;
             type Ref = $borrowed;
 
+            #[inline]
             unsafe fn from_ptr(ptr: *mut $ctype) -> $owned {
                 $owned(ptr)
             }
         }
 
         impl Drop for $owned {
+            #[inline]
             fn drop(&mut self) {
                 unsafe { $drop(self.0) }
             }
@@ -256,12 +261,14 @@ macro_rules! foreign_type {
         impl ::std::ops::Deref for $owned {
             type Target = $borrowed;
 
+            #[inline]
             fn deref(&self) -> &$borrowed {
                 unsafe { $crate::ForeignTypeRef::from_ptr(self.0) }
             }
         }
 
         impl ::std::ops::DerefMut for $owned {
+            #[inline]
             fn deref_mut(&mut self) -> &mut $borrowed {
                 unsafe { $crate::ForeignTypeRef::from_ptr_mut(self.0) }
             }
