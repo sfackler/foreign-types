@@ -83,7 +83,14 @@
 //!     }
 //! }
 //!
-//! foreign_type!(Foo, FooRef, foo_sys::FOO, foo_sys::FOO_free);
+//! foreign_type! {
+//!     /// A Foo.
+//!     owned: Foo;
+//!     /// A borrowed Foo.
+//!     borrowed: FooRef;
+//!     ctype: foo_sys::FOO;
+//!     drop: foo_sys::FOO_free;
+//! }
 //!
 //! # fn main() {}
 //! ```
@@ -124,8 +131,23 @@
 //!     }
 //! }
 //!
-//! foreign_type!(Foo, FooRef, foo_sys::FOO, foo_sys::FOO_free);
-//! foreign_type!(Bar, BarRef, foo_sys::BAR, foo_sys::BAR_free);
+//! foreign_type! {
+//!     /// A Foo.
+//!     owned: Foo;
+//!     /// A borrowed Foo.
+//!     borrowed: FooRef;
+//!     ctype: foo_sys::FOO;
+//!     drop: foo_sys::FOO_free;
+//! }
+//!
+//! foreign_type! {
+//!     /// A Bar.
+//!     owned: Bar;
+//!     /// A borrowed Bar.
+//!     borrowed: BarRef;
+//!     ctype: foo_sys::BAR;
+//!     drop: foo_sys::BAR_free;
+//! }
 //!
 //! impl BarRef {
 //!     fn foo(&self) -> &FooRef {
@@ -182,9 +204,6 @@ pub trait ForeignTypeRef: Sized {
 
 /// A macro to easily define wrappers for foreign types.
 ///
-/// Four arguments must be provided: the name of the owned type, the name of the borrowed type,
-/// the raw C type, and the free function.
-///
 /// # Examples
 ///
 /// ```
@@ -192,13 +211,28 @@ pub trait ForeignTypeRef: Sized {
 /// extern crate foreign_types;
 ///
 /// # mod openssl_sys { pub type SSL = (); pub unsafe fn SSL_free(_: *mut SSL) {} }
-/// foreign_type!(Ssl, SslRef, openssl_sys::SSL, openssl_sys::SSL_free);
+/// foreign_type! {
+///     /// Documentation for the owned type.
+///     owned: Ssl;
+///     /// Documentation for the borrowed type.
+///     borrowed: SslRef;
+///     ctype: openssl_sys::SSL;
+///     drop: openssl_sys::SSL_free;
+/// }
 ///
 /// # fn main() {}
 /// ```
 #[macro_export]
 macro_rules! foreign_type {
-    ($owned:ident, $borrowed:ident, $ctype:ty, $drop:expr) => {
+    (
+        $(#[$owned_attr:meta])*
+        owned: $owned:ident;
+        $(#[$borrowed_attr:meta])*
+        borrowed: $borrowed:ident;
+        ctype: $ctype:ty;
+        drop: $drop:expr;
+    ) => {
+        $(#[$owned_attr])*
         pub struct $owned(*mut $ctype);
 
         impl $crate::ForeignType for $owned {
@@ -230,6 +264,7 @@ macro_rules! foreign_type {
             }
         }
 
+        $(#[$borrowed_attr])*
         pub struct $borrowed($crate::Opaque);
 
         impl $crate::ForeignTypeRef for $borrowed {
