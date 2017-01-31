@@ -85,9 +85,9 @@
 //!
 //! foreign_type! {
 //!     /// A Foo.
-//!     owned: Foo;
+//!     pub owned: Foo;
 //!     /// A borrowed Foo.
-//!     borrowed: FooRef;
+//!     pub borrowed: FooRef;
 //!     ctype: foo_sys::FOO;
 //!     drop: foo_sys::FOO_free;
 //! }
@@ -133,18 +133,18 @@
 //!
 //! foreign_type! {
 //!     /// A Foo.
-//!     owned: Foo;
+//!     pub owned: Foo;
 //!     /// A borrowed Foo.
-//!     borrowed: FooRef;
+//!     pub borrowed: FooRef;
 //!     ctype: foo_sys::FOO;
 //!     drop: foo_sys::FOO_free;
 //! }
 //!
 //! foreign_type! {
 //!     /// A Bar.
-//!     owned: Bar;
+//!     pub owned: Bar;
 //!     /// A borrowed Bar.
-//!     borrowed: BarRef;
+//!     pub borrowed: BarRef;
 //!     ctype: foo_sys::BAR;
 //!     drop: foo_sys::BAR_free;
 //! }
@@ -219,9 +219,9 @@ pub trait ForeignTypeRef: Sized {
 /// # mod openssl_sys { pub type SSL = (); pub unsafe fn SSL_free(_: *mut SSL) {} }
 /// foreign_type! {
 ///     /// Documentation for the owned type.
-///     owned: Ssl;
+///     pub owned: Ssl;
 ///     /// Documentation for the borrowed type.
-///     borrowed: SslRef;
+///     pub borrowed: SslRef;
 ///     ctype: openssl_sys::SSL;
 ///     drop: openssl_sys::SSL_free;
 /// }
@@ -232,9 +232,9 @@ pub trait ForeignTypeRef: Sized {
 macro_rules! foreign_type {
     (
         $(#[$owned_attr:meta])*
-        owned: $owned:ident;
+        pub owned: $owned:ident;
         $(#[$borrowed_attr:meta])*
-        borrowed: $borrowed:ident;
+        pub borrowed: $borrowed:ident;
         ctype: $ctype:ty;
         drop: $drop:expr;
     ) => {
