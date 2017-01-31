@@ -84,12 +84,12 @@
 //! }
 //!
 //! foreign_type! {
+//!     type CType = foo_sys::FOO;
+//!     fn drop = foo_sys::FOO_free;
 //!     /// A Foo.
-//!     pub owned: Foo;
+//!     pub struct Foo;
 //!     /// A borrowed Foo.
-//!     pub borrowed: FooRef;
-//!     ctype: foo_sys::FOO;
-//!     drop: foo_sys::FOO_free;
+//!     pub struct FooRef;
 //! }
 //!
 //! # fn main() {}
@@ -132,21 +132,21 @@
 //! }
 //!
 //! foreign_type! {
+//!     type CType = foo_sys::FOO;
+//!     fn drop = foo_sys::FOO_free;
 //!     /// A Foo.
-//!     pub owned: Foo;
+//!     pub struct Foo;
 //!     /// A borrowed Foo.
-//!     pub borrowed: FooRef;
-//!     ctype: foo_sys::FOO;
-//!     drop: foo_sys::FOO_free;
+//!     pub struct FooRef;
 //! }
 //!
 //! foreign_type! {
-//!     /// A Bar.
-//!     pub owned: Bar;
+//!     type CType = foo_sys::BAR;
+//!     fn drop = foo_sys::BAR_free;
+//!     /// A Foo.
+//!     pub struct Bar;
 //!     /// A borrowed Bar.
-//!     pub borrowed: BarRef;
-//!     ctype: foo_sys::BAR;
-//!     drop: foo_sys::BAR_free;
+//!     pub struct BarRef;
 //! }
 //!
 //! impl BarRef {
@@ -218,12 +218,12 @@ pub trait ForeignTypeRef: Sized {
 ///
 /// # mod openssl_sys { pub type SSL = (); pub unsafe fn SSL_free(_: *mut SSL) {} }
 /// foreign_type! {
+///     type CType = openssl_sys::SSL;
+///     fn drop = openssl_sys::SSL_free;
 ///     /// Documentation for the owned type.
-///     pub owned: Ssl;
+///     pub struct Ssl;
 ///     /// Documentation for the borrowed type.
-///     pub borrowed: SslRef;
-///     ctype: openssl_sys::SSL;
-///     drop: openssl_sys::SSL_free;
+///     pub struct SslRef;
 /// }
 ///
 /// # fn main() {}
@@ -231,12 +231,12 @@ pub trait ForeignTypeRef: Sized {
 #[macro_export]
 macro_rules! foreign_type {
     (
+        type CType = $ctype:ty;
+        fn drop = $drop:expr;
         $(#[$owned_attr:meta])*
-        pub owned: $owned:ident;
+        pub struct $owned:ident;
         $(#[$borrowed_attr:meta])*
-        pub borrowed: $borrowed:ident;
-        ctype: $ctype:ty;
-        drop: $drop:expr;
+        pub struct $borrowed:ident;
     ) => {
         $(#[$owned_attr])*
         pub struct $owned(*mut $ctype);
