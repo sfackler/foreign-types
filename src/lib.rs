@@ -7,7 +7,7 @@
 //! This crate provides a framework to define a Rust wrapper over these kinds of raw C APIs in a way
 //! that allows ownership semantics to be expressed in an ergonomic manner. The framework takes a
 //! dual-type approach similar to APIs in the standard library such as `PathBuf`/`Path` or `String`/
-//! `&str`. One type represents an owned value and references to the other represent borrowed
+//! `str`. One type represents an owned value and references to the other represent borrowed
 //! values.
 //!
 //! # Examples
