@@ -26,7 +26,8 @@
 //!
 //! // The borrowed type is a newtype wrapper around an `Opaque` value.
 //! //
-//! // `FooRef` values never exist; we instead create references to `FooRef`s from raw C pointers.
+//! // `FooRef` values never exist; we instead create references to `FooRef`s
+//! // from raw C pointers.
 //! pub struct FooRef(Opaque);
 //!
 //! impl ForeignTypeRef for FooRef {
@@ -35,8 +36,8 @@
 //!
 //! // The owned type is simply a newtype wrapper around the raw C type.
 //! //
-//! // It dereferences to `FooRef`, so methods that do not require ownership should be defined
-//! // there.
+//! // It dereferences to `FooRef`, so methods that do not require ownership
+//! // should be defined there.
 //! pub struct Foo(*mut foo_sys::FOO);
 //!
 //! impl Drop for Foo {
