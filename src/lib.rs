@@ -287,6 +287,20 @@ macro_rules! foreign_type {
             }
         }
 
+        impl ::std::borrow::Borrow<$borrowed> for $owned {
+            #[inline]
+            fn borrow(&self) -> &$borrowed {
+                &**self
+            }
+        }
+
+        impl ::std::convert::AsRef<$borrowed> for $owned {
+            #[inline]
+            fn as_ref(&self) -> &$borrowed {
+                &**self
+            }
+        }
+
         $(#[$borrowed_attr])*
         pub struct $borrowed($crate::Opaque);
 
