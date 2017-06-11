@@ -100,6 +100,8 @@
 //! # fn main() {}
 //! ```
 //!
+//! `#[derive(…)] is permitted before the lines with `pub struct`.
+//!
 //! Say we then have a separate type in our C API that contains a `FOO`:
 //!
 //! ```
