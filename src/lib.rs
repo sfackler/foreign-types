@@ -106,6 +106,7 @@
 //! It will be used to implement `ToOwned` and `Clone`.
 //!
 //! `#[derive(…)] is permitted before the lines with `pub struct`.
+//! `#[doc(hidden)]` before the `type CType` line will hide the `foreign_type!` implementations from documentation.
 //!
 //! Say we then have a separate type in our C API that contains a `FOO`:
 //!
@@ -144,6 +145,7 @@
 //! }
 //!
 //! foreign_type! {
+//!     #[doc(hidden)]
 //!     type CType = foo_sys::FOO;
 //!     fn drop = foo_sys::FOO_free;
 //!     /// A Foo.
@@ -247,6 +249,7 @@ pub trait ForeignTypeRef: Sized {
 #[macro_export]
 macro_rules! foreign_type {
     (
+        $(#[$impl_attr:meta])*
         type CType = $ctype:ty;
         fn drop = $drop:expr;
         $(fn clone = $clone:expr;)*
@@ -258,6 +261,7 @@ macro_rules! foreign_type {
         $(#[$owned_attr])*
         pub struct $owned(*mut $ctype);
 
+        $(#[$impl_attr])*
         impl $crate::ForeignType for $owned {
             type CType = $ctype;
             type Ref = $borrowed;
@@ -336,6 +340,7 @@ macro_rules! foreign_type {
         $(#[$borrowed_attr])*
         pub struct $borrowed($crate::Opaque);
 
+        $(#[$impl_attr])*
         impl $crate::ForeignTypeRef for $borrowed {
             type CType = $ctype;
         }
