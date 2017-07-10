@@ -1,6 +1,6 @@
 # foreign-types
 
-[![Build Status](https://travis-ci.org/sfackler/foreign-types.svg?branch=master)](https://travis-ci.org/sfackler/foreign-types)
+[![CircleCI](https://circleci.com/gh/sfackler/foreign-types.svg?style=shield)](https://circleci.com/gh/sfackler/foreign-types)
 
 [Documentation](https://docs.rs/foreign-types)
 
