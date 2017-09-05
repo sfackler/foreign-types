@@ -177,7 +177,7 @@
 //! ```
 #![no_std]
 #![warn(missing_docs)]
-#![doc(html_root_url="https://docs.rs/foreign-types/0.2.0")]
+#![doc(html_root_url="https://docs.rs/foreign-types/0.3")]
 
 use core::cell::UnsafeCell;
 
