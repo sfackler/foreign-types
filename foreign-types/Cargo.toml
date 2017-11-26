@@ -8,3 +8,4 @@ repository = "https://github.com/sfackler/foreign-types"
 readme = "README.md"
 
 [dependencies]
+foreign-types-shared = { path = "../foreign-types-shared" }
