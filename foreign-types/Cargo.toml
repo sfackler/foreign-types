@@ -1,6 +1,6 @@
 [package]
 name = "foreign-types"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Steven Fackler <sfackler@gmail.com>"]
 license = "MIT/Apache-2.0"
 description = "A framework for Rust wrappers over C APIs"
@@ -8,4 +8,4 @@ repository = "https://github.com/sfackler/foreign-types"
 readme = "README.md"
 
 [dependencies]
-foreign-types-shared = { path = "../foreign-types-shared" }
+foreign-types-shared = { version = "0.1", path = "../foreign-types-shared" }
