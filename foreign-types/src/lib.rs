@@ -105,7 +105,7 @@
 //! If `fn clone` is specified, then it must take `CType` as an argument and return a copy of it as `CType`.
 //! It will be used to implement `ToOwned` and `Clone`.
 //!
-//! `#[derive(…)] is permitted before the lines with `pub struct`.
+//! `#[derive(…)]` is permitted before the lines with `pub struct`.
 //! `#[doc(hidden)]` before the `type CType` line will hide the `foreign_type!` implementations from documentation.
 //!
 //! Say we then have a separate type in our C API that contains a `FOO`:
