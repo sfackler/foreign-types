@@ -217,7 +217,8 @@ macro_rules! foreign_type {
         pub struct $borrowed:ident;
     ) => {
         $(#[$owned_attr])*
-        pub struct $owned(*mut $ctype);
+        #[repr(transparent)]
+        pub struct $owned(::std::ptr::NonNull<$ctype>);
 
         $(#[$impl_attr])*
         impl $crate::ForeignType for $owned {
@@ -226,19 +227,20 @@ macro_rules! foreign_type {
 
             #[inline]
             unsafe fn from_ptr(ptr: *mut $ctype) -> $owned {
-                $owned(ptr)
+                debug_assert!(!ptr.is_null());
+                $owned(::std::ptr::NonNull::new_unchecked(ptr))
             }
 
             #[inline]
             fn as_ptr(&self) -> *mut $ctype {
-                self.0
+                self.0.as_ptr()
             }
         }
 
         impl Drop for $owned {
             #[inline]
             fn drop(&mut self) {
-                unsafe { $drop(self.0) }
+                unsafe { $drop($crate::ForeignType::as_ptr(self)) }
             }
         }
 
@@ -247,7 +249,7 @@ macro_rules! foreign_type {
                 #[inline]
                 fn clone(&self) -> $owned {
                     unsafe {
-                        let handle: *mut $ctype = $clone(self.0);
+                        let handle: *mut $ctype = $clone($crate::ForeignType::as_ptr(self));
                         $crate::ForeignType::from_ptr(handle)
                     }
                 }
@@ -270,14 +272,14 @@ macro_rules! foreign_type {
 
             #[inline]
             fn deref(&self) -> &$borrowed {
-                unsafe { $crate::ForeignTypeRef::from_ptr(self.0) }
+                unsafe { $crate::ForeignTypeRef::from_ptr($crate::ForeignType::as_ptr(self)) }
             }
         }
 
         impl ::std::ops::DerefMut for $owned {
             #[inline]
             fn deref_mut(&mut self) -> &mut $borrowed {
-                unsafe { $crate::ForeignTypeRef::from_ptr_mut(self.0) }
+                unsafe { $crate::ForeignTypeRef::from_ptr_mut($crate::ForeignType::as_ptr(self)) }
             }
         }
 
