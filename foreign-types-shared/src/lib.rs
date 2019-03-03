@@ -5,11 +5,12 @@
 #![doc(html_root_url="https://docs.rs/foreign-types-shared/0.1")]
 
 use core::cell::UnsafeCell;
+use core::marker::PhantomData;
 
 /// An opaque type used to define `ForeignTypeRef` types.
 ///
 /// A type implementing `ForeignTypeRef` should simply be a newtype wrapper around this type.
-pub struct Opaque(UnsafeCell<()>);
+pub struct Opaque(UnsafeCell<PhantomData<*mut ()>>);
 
 /// A type implemented by wrappers over foreign types.
 pub trait ForeignType: Sized {
