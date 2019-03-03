@@ -181,7 +181,7 @@
 extern crate foreign_types_shared;
 
 #[doc(inline)]
-pub use foreign_types_shared::*;
+pub use foreign_types_shared::{Opaque, ForeignType, ForeignTypeRef};
 
 /// A macro to easily define wrappers for foreign types.
 ///
