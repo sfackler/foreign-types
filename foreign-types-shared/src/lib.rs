@@ -34,12 +34,14 @@ pub trait ForeignTypeRef: Sized {
     /// Constructs a shared instance of this type from its raw type.
     #[inline]
     unsafe fn from_ptr<'a>(ptr: *mut Self::CType) -> &'a Self {
+        debug_assert!(!ptr.is_null());
         &*(ptr as *mut _)
     }
 
     /// Constructs a mutable reference of this type from its raw type.
     #[inline]
     unsafe fn from_ptr_mut<'a>(ptr: *mut Self::CType) -> &'a mut Self {
+        debug_assert!(!ptr.is_null());
         &mut *(ptr as *mut _)
     }
 
