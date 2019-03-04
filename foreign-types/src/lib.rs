@@ -233,7 +233,7 @@ pub mod export {
 ///
 /// # fn main() {}
 /// ```
-#[macro_export]
+#[macro_export(local_inner_macros)]
 macro_rules! foreign_type {
     ($($t:tt)*) => {
         $crate::foreign_type_impl!($crate $($t)*);
