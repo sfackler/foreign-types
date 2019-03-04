@@ -15,6 +15,7 @@
 //! ```
 //! use foreign_types::{ForeignType, ForeignTypeRef, Opaque};
 //! use std::ops::{Deref, DerefMut};
+//! use std::ptr::NonNull;
 //!
 //! mod foo_sys {
 //!     pub enum FOO {}
@@ -38,11 +39,17 @@
 //! //
 //! // It dereferences to `FooRef`, so methods that do not require ownership
 //! // should be defined there.
-//! pub struct Foo(*mut foo_sys::FOO);
+//! pub struct Foo(NonNull<foo_sys::FOO>);
+//!
+//! unsafe impl Sync for FooRef {}
+//! unsafe impl Send for FooRef {}
+//!
+//! unsafe impl Sync for Foo {}
+//! unsafe impl Send for Foo {}
 //!
 //! impl Drop for Foo {
 //!     fn drop(&mut self) {
-//!         unsafe { foo_sys::FOO_free(self.0) }
+//!         unsafe { foo_sys::FOO_free(self.as_ptr()) }
 //!     }
 //! }
 //!
@@ -51,11 +58,11 @@
 //!     type Ref = FooRef;
 //!
 //!     unsafe fn from_ptr(ptr: *mut foo_sys::FOO) -> Foo {
-//!         Foo(ptr)
+//!         Foo(NonNull::new_unchecked(ptr))
 //!     }
 //!
 //!     fn as_ptr(&self) -> *mut foo_sys::FOO {
-//!         self.0
+//!         self.0.as_ptr()
 //!     }
 //! }
 //!
@@ -63,15 +70,17 @@
 //!     type Target = FooRef;
 //!
 //!     fn deref(&self) -> &FooRef {
-//!         unsafe { FooRef::from_ptr(self.0) }
+//!         unsafe { FooRef::from_ptr(self.as_ptr()) }
 //!     }
 //! }
 //!
 //! impl DerefMut for Foo {
 //!     fn deref_mut(&mut self) -> &mut FooRef {
-//!         unsafe { FooRef::from_ptr_mut(self.0) }
+//!         unsafe { FooRef::from_ptr_mut(self.as_ptr()) }
 //!     }
 //! }
+//!
+//! // add in Borrow, BorrowMut, AsRef, AsRefMut, Clone, ToOwned...
 //! ```
 //!
 //! The `foreign_type!` macro can generate this boilerplate for you:
@@ -85,28 +94,26 @@
 //!
 //!     extern {
 //!         pub fn FOO_free(foo: *mut FOO);
-//!         pub fn FOO_duplicate(foo: *mut FOO) -> *mut FOO; // Optional
+//!         pub fn FOO_duplicate(foo: *mut FOO) -> *mut FOO; // optional
 //!     }
 //! }
 //!
 //! foreign_type! {
-//!     type CType = foo_sys::FOO;
-//!     fn drop = foo_sys::FOO_free;
-//!     fn clone = foo_sys::FOO_duplicate; // Optional
 //!     /// A Foo.
-//!     pub struct Foo;
-//!     /// A borrowed Foo.
-//!     pub struct FooRef;
+//!     pub type Foo:
+//!         Sync + Send // optional
+//!     {
+//!         type CType = foo_sys::FOO;
+//!         fn drop = foo_sys::FOO_free;
+//!         fn clone = foo_sys::FOO_duplicate; // optional
+//!     }
 //! }
 //!
 //! # fn main() {}
 //! ```
 //!
 //! If `fn clone` is specified, then it must take `CType` as an argument and return a copy of it as `CType`.
-//! It will be used to implement `ToOwned` and `Clone`.
-//!
-//! `#[derive(…)]` is permitted before the lines with `pub struct`.
-//! `#[doc(hidden)]` before the `type CType` line will hide the `foreign_type!` implementations from documentation.
+//! It will be used to implement `Clone`, and if the `std` Cargo feature is enabled, `ToOwned`.
 //!
 //! Say we then have a separate type in our C API that contains a `FOO`:
 //!
@@ -145,22 +152,17 @@
 //! }
 //!
 //! foreign_type! {
-//!     #[doc(hidden)]
-//!     type CType = foo_sys::FOO;
-//!     fn drop = foo_sys::FOO_free;
 //!     /// A Foo.
-//!     pub struct Foo;
-//!     /// A borrowed Foo.
-//!     pub struct FooRef;
-//! }
+//!     pub type Foo: Sync + Send {
+//!         type CType = foo_sys::FOO;
+//!         fn drop = foo_sys::FOO_free;
+//!     }
 //!
-//! foreign_type! {
-//!     type CType = foo_sys::BAR;
-//!     fn drop = foo_sys::BAR_free;
-//!     /// A Foo.
-//!     pub struct Bar;
-//!     /// A borrowed Bar.
-//!     pub struct BarRef;
+//!     /// A Bar.
+//!     pub type Bar: Sync + Send {
+//!         type CType = foo_sys::BAR;
+//!         fn drop = foo_sys::BAR_free;
+//!     }
 //! }
 //!
 //! impl BarRef {
@@ -179,9 +181,27 @@
 #![warn(missing_docs)]
 #![doc(html_root_url="https://docs.rs/foreign-types/0.3")]
 extern crate foreign_types_shared;
+extern crate foreign_types_macros;
+#[cfg(feature = "std")]
+extern crate std;
 
+#[doc(hidden)]
+pub use foreign_types_macros::foreign_type_impl;
 #[doc(inline)]
 pub use foreign_types_shared::{Opaque, ForeignType, ForeignTypeRef};
+
+#[doc(hidden)]
+pub mod export {
+    pub use core::ptr::NonNull;
+    pub use core::marker::{Sync, Send};
+    pub use core::ops::{Deref, DerefMut, Drop};
+    pub use core::borrow::{Borrow, BorrowMut};
+    pub use core::convert::{AsRef, AsMut};
+    pub use core::clone::Clone;
+
+    #[cfg(feature = "std")]
+    pub use std::borrow::ToOwned;
+}
 
 /// A macro to easily define wrappers for foreign types.
 ///
@@ -193,116 +213,19 @@ pub use foreign_types_shared::{Opaque, ForeignType, ForeignTypeRef};
 ///
 /// # mod openssl_sys { pub type SSL = (); pub unsafe fn SSL_free(_: *mut SSL) {} pub unsafe fn SSL_dup(x: *mut SSL) -> *mut SSL {x} }
 /// foreign_type! {
-///     type CType = openssl_sys::SSL;
-///     fn drop = openssl_sys::SSL_free;
-///     fn clone = openssl_sys::SSL_dup;
 ///     /// Documentation for the owned type.
-///     pub struct Ssl;
-///     /// Documentation for the borrowed type.
-///     pub struct SslRef;
+///     pub type Ssl: Sync + Send {
+///         type CType = openssl_sys::SSL;
+///         fn drop = openssl_sys::SSL_free;
+///         fn clone = openssl_sys::SSL_dup;
+///     }
 /// }
 ///
 /// # fn main() {}
 /// ```
 #[macro_export]
 macro_rules! foreign_type {
-    (
-        $(#[$impl_attr:meta])*
-        type CType = $ctype:ty;
-        fn drop = $drop:expr;
-        $(fn clone = $clone:expr;)*
-        $(#[$owned_attr:meta])*
-        pub struct $owned:ident;
-        $(#[$borrowed_attr:meta])*
-        pub struct $borrowed:ident;
-    ) => {
-        $(#[$owned_attr])*
-        #[repr(transparent)]
-        pub struct $owned(::std::ptr::NonNull<$ctype>);
-
-        $(#[$impl_attr])*
-        impl $crate::ForeignType for $owned {
-            type CType = $ctype;
-            type Ref = $borrowed;
-
-            #[inline]
-            unsafe fn from_ptr(ptr: *mut $ctype) -> $owned {
-                debug_assert!(!ptr.is_null());
-                $owned(::std::ptr::NonNull::new_unchecked(ptr))
-            }
-
-            #[inline]
-            fn as_ptr(&self) -> *mut $ctype {
-                self.0.as_ptr()
-            }
-        }
-
-        impl Drop for $owned {
-            #[inline]
-            fn drop(&mut self) {
-                unsafe { $drop($crate::ForeignType::as_ptr(self)) }
-            }
-        }
-
-        $(
-            impl Clone for $owned {
-                #[inline]
-                fn clone(&self) -> $owned {
-                    unsafe {
-                        let handle: *mut $ctype = $clone($crate::ForeignType::as_ptr(self));
-                        $crate::ForeignType::from_ptr(handle)
-                    }
-                }
-            }
-
-            impl ::std::borrow::ToOwned for $borrowed {
-                type Owned = $owned;
-                #[inline]
-                fn to_owned(&self) -> $owned {
-                    unsafe {
-                        let handle: *mut $ctype = $clone($crate::ForeignTypeRef::as_ptr(self));
-                        $crate::ForeignType::from_ptr(handle)
-                    }
-                }
-            }
-        )*
-
-        impl ::std::ops::Deref for $owned {
-            type Target = $borrowed;
-
-            #[inline]
-            fn deref(&self) -> &$borrowed {
-                unsafe { $crate::ForeignTypeRef::from_ptr($crate::ForeignType::as_ptr(self)) }
-            }
-        }
-
-        impl ::std::ops::DerefMut for $owned {
-            #[inline]
-            fn deref_mut(&mut self) -> &mut $borrowed {
-                unsafe { $crate::ForeignTypeRef::from_ptr_mut($crate::ForeignType::as_ptr(self)) }
-            }
-        }
-
-        impl ::std::borrow::Borrow<$borrowed> for $owned {
-            #[inline]
-            fn borrow(&self) -> &$borrowed {
-                &**self
-            }
-        }
-
-        impl ::std::convert::AsRef<$borrowed> for $owned {
-            #[inline]
-            fn as_ref(&self) -> &$borrowed {
-                &**self
-            }
-        }
-
-        $(#[$borrowed_attr])*
-        pub struct $borrowed($crate::Opaque);
-
-        $(#[$impl_attr])*
-        impl $crate::ForeignTypeRef for $borrowed {
-            type CType = $ctype;
-        }
-    }
+    ($($t:tt)*) => {
+        $crate::foreign_type_impl!($crate $($t)*);
+    };
 }

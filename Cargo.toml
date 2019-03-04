@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "foreign-types",
-    "foreign-types-shared"
+    "foreign-types-macros",
+    "foreign-types-shared",
 ]

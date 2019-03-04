@@ -7,5 +7,10 @@ description = "A framework for Rust wrappers over C APIs"
 repository = "https://github.com/sfackler/foreign-types"
 readme = "README.md"
 
+[features]
+default = ["std"]
+std = ["foreign-types-macros/std"]
+
 [dependencies]
+foreign-types-macros = { version = "0.1", path = "../foreign-types-macros" }
 foreign-types-shared = { version = "0.1", path = "../foreign-types-shared" }
