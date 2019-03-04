@@ -180,8 +180,7 @@
 #![no_std]
 #![warn(missing_docs)]
 #![doc(html_root_url="https://docs.rs/foreign-types/0.3")]
-extern crate foreign_types_shared;
-extern crate foreign_types_macros;
+
 #[cfg(feature = "std")]
 extern crate std;
 
