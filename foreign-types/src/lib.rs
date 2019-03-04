@@ -100,12 +100,23 @@
 //!
 //! foreign_type! {
 //!     /// A Foo.
-//!     pub type Foo:
-//!         Sync + Send // optional
+//!     pub type Foo
+//!         : Sync + Send // optional
 //!     {
 //!         type CType = foo_sys::FOO;
 //!         fn drop = foo_sys::FOO_free;
 //!         fn clone = foo_sys::FOO_duplicate; // optional
+//!     }
+//!
+//!     /// A Foo with generic parameters.
+//!     pub type GenericFoo<T> {
+//!         type CType = foo_sys::FOO;
+//!         // This type is added as a `PhantomData` field to handle variance
+//!         // of the parameters. However, it has no impact on trait impls:
+//!         // `GenericFoo<T>` is always `Clone`, even if `T` is not.
+//!         type PhantomData = T;
+//!         fn drop = foo_sys::FOO_free;
+//!         fn clone = foo_sys::FOO_duplicate;
 //!     }
 //! }
 //!
@@ -179,7 +190,7 @@
 //! ```
 #![no_std]
 #![warn(missing_docs)]
-#![doc(html_root_url="https://docs.rs/foreign-types/0.3")]
+#![doc(html_root_url = "https://docs.rs/foreign-types/0.3")]
 
 #[cfg(feature = "std")]
 extern crate std;
@@ -187,16 +198,16 @@ extern crate std;
 #[doc(hidden)]
 pub use foreign_types_macros::foreign_type_impl;
 #[doc(inline)]
-pub use foreign_types_shared::{Opaque, ForeignType, ForeignTypeRef};
+pub use foreign_types_shared::{ForeignType, ForeignTypeRef, Opaque};
 
 #[doc(hidden)]
 pub mod export {
-    pub use core::ptr::NonNull;
-    pub use core::marker::{Sync, Send};
-    pub use core::ops::{Deref, DerefMut, Drop};
     pub use core::borrow::{Borrow, BorrowMut};
-    pub use core::convert::{AsRef, AsMut};
     pub use core::clone::Clone;
+    pub use core::convert::{AsMut, AsRef};
+    pub use core::marker::{PhantomData, Send, Sync};
+    pub use core::ops::{Deref, DerefMut, Drop};
+    pub use core::ptr::NonNull;
 
     #[cfg(feature = "std")]
     pub use std::borrow::ToOwned;

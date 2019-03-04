@@ -1,11 +1,12 @@
 use syn::parse::{self, Parse, ParseStream};
 use syn::punctuated::Punctuated;
 use syn::token;
-use syn::{braced, Attribute, ExprPath, Ident, Path, Token, Visibility};
+use syn::{braced, Attribute, ExprPath, Generics, Ident, Path, Token, Type, Visibility};
 
 mod kw {
     syn::custom_keyword!(Sync);
     syn::custom_keyword!(Send);
+    syn::custom_keyword!(PhantomData);
     syn::custom_keyword!(CType);
     syn::custom_keyword!(drop);
     syn::custom_keyword!(clone);
@@ -32,8 +33,10 @@ pub struct ForeignType {
     pub attrs: Vec<Attribute>,
     pub visibility: Visibility,
     pub name: Ident,
+    pub generics: Generics,
     pub oibits: Punctuated<Ident, Token![+]>,
-    pub ctype: ExprPath,
+    pub phantom_data: Option<Type>,
+    pub ctype: Type,
     pub drop: ExprPath,
     pub clone: Option<ExprPath>,
 }
@@ -44,23 +47,23 @@ impl Parse for ForeignType {
         let visibility = input.parse()?;
         input.parse::<Token![type]>()?;
         let name = input.parse()?;
+        let generics = input.parse()?;
         let oibits = input.call(parse_oibits)?;
         let inner;
         braced!(inner in input);
-        let ctype = inner.call(parse_ctype)?;
+        let ctype = inner.call(parse_type::<kw::CType>)?;
+        let phantom_data = inner.call(parse_phantom_data)?;
         let drop = inner.call(parse_fn::<kw::drop>)?;
-        let clone = if inner.is_empty() {
-            None
-        } else {
-            Some(inner.call(parse_fn::<kw::clone>)?)
-        };
+        let clone = inner.call(parse_clone)?;
 
         Ok(ForeignType {
             attrs,
             visibility,
             name,
+            generics,
             oibits,
             ctype,
+            phantom_data,
             drop,
             clone,
         })
@@ -95,20 +98,42 @@ fn parse_oibits(input: ParseStream) -> parse::Result<Punctuated<Ident, Token![+]
     Ok(out)
 }
 
-fn parse_ctype(input: ParseStream) -> parse::Result<ExprPath> {
+fn parse_type<T>(input: ParseStream) -> parse::Result<Type>
+where
+    T: Parse,
+{
     input.parse::<Token![type]>()?;
-    input.parse::<kw::CType>()?;
+    input.parse::<T>()?;
     input.parse::<Token![=]>()?;
-    let path = input.parse()?;
+    let type_ = input.parse()?;
     input.parse::<Token![;]>()?;
-    Ok(path)
+    Ok(type_)
 }
 
-fn parse_fn<T: Parse>(input: ParseStream) -> parse::Result<ExprPath> {
+fn parse_phantom_data(input: ParseStream) -> parse::Result<Option<Type>> {
+    if input.peek(Token![type]) && input.peek2(kw::PhantomData) {
+        input.call(parse_type::<kw::PhantomData>).map(Some)
+    } else {
+        Ok(None)
+    }
+}
+
+fn parse_fn<T>(input: ParseStream) -> parse::Result<ExprPath>
+where
+    T: Parse,
+{
     input.parse::<Token![fn]>()?;
     input.parse::<T>()?;
     input.parse::<Token![=]>()?;
     let path = input.parse()?;
     input.parse::<Token![;]>()?;
     Ok(path)
+}
+
+fn parse_clone(input: ParseStream) -> parse::Result<Option<ExprPath>> {
+    if input.peek(Token![fn]) && input.peek2(kw::clone) {
+        input.call(parse_fn::<kw::clone>).map(Some)
+    } else {
+        Ok(None)
+    }
 }
