@@ -222,12 +222,20 @@ pub mod export {
 /// extern crate foreign_types;
 ///
 /// # mod openssl_sys { pub type SSL = (); pub unsafe fn SSL_free(_: *mut SSL) {} pub unsafe fn SSL_dup(x: *mut SSL) -> *mut SSL {x} }
+/// # mod foo_sys { pub type THING = (); pub unsafe fn THING_free(_: *mut THING) {} }
 /// foreign_type! {
 ///     /// Documentation for the owned type.
 ///     pub type Ssl: Sync + Send {
 ///         type CType = openssl_sys::SSL;
 ///         fn drop = openssl_sys::SSL_free;
 ///         fn clone = openssl_sys::SSL_dup;
+///     }
+///
+///     /// This type immutably borrows other data and has a limited lifetime!
+///     pub type Thing<'a>: Send {
+///         type CType = foo_sys::THING;
+///         type PhantomData = &'a ();
+///         fn drop = foo_sys::THING_free;
 ///     }
 /// }
 ///
