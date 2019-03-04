@@ -190,7 +190,7 @@
 //! ```
 #![no_std]
 #![warn(missing_docs)]
-#![doc(html_root_url = "https://docs.rs/foreign-types/0.3")]
+#![doc(html_root_url = "https://docs.rs/foreign-types/0.4")]
 
 #[cfg(feature = "std")]
 extern crate std;
