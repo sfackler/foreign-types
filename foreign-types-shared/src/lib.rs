@@ -2,7 +2,7 @@
 
 #![no_std]
 #![warn(missing_docs)]
-#![doc(html_root_url="https://docs.rs/foreign-types-shared/0.1")]
+#![doc(html_root_url="https://docs.rs/foreign-types-shared/0.2")]
 
 use core::cell::UnsafeCell;
 use core::marker::PhantomData;
