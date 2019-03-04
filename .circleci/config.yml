@@ -34,5 +34,6 @@ jobs:
       - run: cargo generate-lockfile
       - *SAVE_REGISTRY
       - *RESTORE_DEPS
-      - run: cargo test --all
+      - run: cargo test --manifest-path=foreign-types/Cargo.toml
+      - run: cargo test --manifest-path=foreign-types/Cargo.toml --no-default-features
       - *SAVE_DEPS
