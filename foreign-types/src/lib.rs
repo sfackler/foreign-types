@@ -64,14 +64,6 @@
 //!     fn as_ptr(&self) -> *mut foo_sys::FOO {
 //!         self.0.as_ptr()
 //!     }
-//!
-//!     fn into_ptr(self) -> *mut foo_sys::FOO {
-//!         let inner = self.as_ptr();
-//!
-//!         ::core::mem::forget(self);
-//!
-//!         inner
-//!     }
 //! }
 //!
 //! impl Deref for Foo {
@@ -206,7 +198,7 @@ extern crate std;
 #[doc(hidden)]
 pub use foreign_types_macros::foreign_type_impl;
 #[doc(inline)]
-pub use foreign_types_shared::{ForeignType, ForeignTypeRef, Opaque};
+pub use foreign_types_shared::{ForeignType, ForeignTypeRef, IntoForeignType, Opaque};
 
 #[doc(hidden)]
 pub mod export {
