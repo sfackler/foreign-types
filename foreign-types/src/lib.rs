@@ -64,6 +64,14 @@
 //!     fn as_ptr(&self) -> *mut foo_sys::FOO {
 //!         self.0.as_ptr()
 //!     }
+//!
+//!     fn into_ptr(self) -> *mut foo_sys::FOO {
+//!         let inner = self.as_ptr();
+//!
+//!         ::core::mem::forget(self);
+//!
+//!         inner
+//!     }
 //! }
 //!
 //! impl Deref for Foo {
