@@ -198,7 +198,7 @@ extern crate std;
 #[doc(hidden)]
 pub use foreign_types_macros::foreign_type_impl;
 #[doc(inline)]
-pub use foreign_types_shared::{ForeignType, ForeignTypeRef, Opaque};
+pub use foreign_types_shared::{ForeignType, ForeignTypeRef, Opaque, TryFromForeignTypeError};
 
 #[doc(hidden)]
 pub mod export {
@@ -208,9 +208,13 @@ pub mod export {
     pub use core::marker::{PhantomData, Send, Sync};
     pub use core::ops::{Deref, DerefMut, Drop};
     pub use core::ptr::NonNull;
+    pub use core::result::Result;
 
     #[cfg(feature = "std")]
     pub use std::borrow::ToOwned;
+
+    #[rustc::since(1.34)]
+    pub use core::convert::TryFrom;
 }
 
 /// A macro to easily define wrappers for foreign types.

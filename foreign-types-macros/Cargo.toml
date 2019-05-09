@@ -17,3 +17,4 @@ std = []
 syn = "0.15"
 quote = "0.6"
 proc-macro2 = "0.4"
+select-rustc = "0.1"

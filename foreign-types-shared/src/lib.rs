@@ -52,3 +52,8 @@ pub trait ForeignTypeRef: Sized {
         self as *const _ as *mut _
     }
 }
+
+/// The error type returned when a null pointer been passed to the wrapper.
+#[rustc::since(1.34)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
+pub struct TryFromForeignTypeError(());

@@ -25,6 +25,7 @@ fn build_foreign_type(crate_: &Path, input: &ForeignType) -> TokenStream {
     let as_ref_impls = build_as_ref_impls(crate_, input);
     let clone_impl = build_clone_impl(crate_, input);
     let to_owned_impl = build_to_owned_impl(crate_, input);
+    let try_from_impl = build_try_from_impl(crate_, input);
 
     quote! {
         #decls
@@ -36,6 +37,7 @@ fn build_foreign_type(crate_: &Path, input: &ForeignType) -> TokenStream {
         #as_ref_impls
         #clone_impl
         #to_owned_impl
+        #try_from_impl
     }
 }
 
@@ -244,5 +246,32 @@ fn build_to_owned_impl(crate_: &Path, input: &ForeignType) -> TokenStream {
 
 #[cfg(not(feature = "std"))]
 fn build_to_owned_impl(_: &Path, _: &ForeignType) -> TokenStream {
+    quote!()
+}
+
+#[rustc::since(1.34)]
+fn build_try_from_impl(crate_: &Path, input: &ForeignType) -> TokenStream {
+    let name = &input.name;
+    let ctype = &input.ctype;
+    let (impl_generics, ty_generics, _) = input.generics.split_for_impl();
+
+    quote! {
+        impl #impl_generics #crate_::export::TryFrom<*mut #ctype> for #name #ty_generics {
+            type Error = #crate_::TryFromForeignTypeError;
+
+            #[inline]
+            fn try_from(ptr: *mut #ctype) -> #crate_::export::Result<Self, Self::Error> {
+                if ptr.is_null() {
+                    Err(Self::Error::default())
+                } else {
+                    Ok(unsafe { <Self as #crate_::ForeignType>::from_ptr(ptr) })
+                }
+            }
+        }
+    }
+}
+
+#[rustc::before(1.34)]
+fn build_try_from_impl(_: &Path, _: &ForeignType) -> TokenStream {
     quote!()
 }

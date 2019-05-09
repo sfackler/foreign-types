@@ -13,5 +13,7 @@ default = ["std"]
 std = ["foreign-types-macros/std"]
 
 [dependencies]
+select-rustc = "0.1"
+
 foreign-types-macros = { version = "0.1", path = "../foreign-types-macros" }
 foreign-types-shared = { version = "0.2", path = "../foreign-types-shared" }

@@ -8,3 +8,4 @@ description = "An internal crate used by foreign-types"
 repository = "https://github.com/sfackler/foreign-types"
 
 [dependencies]
+select-rustc = "0.1"
