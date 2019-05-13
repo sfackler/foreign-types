@@ -67,9 +67,7 @@
 //!
 //!     fn into_ptr(self) -> *mut foo_sys::FOO {
 //!         let inner = self.as_ptr();
-//!
 //!         ::core::mem::forget(self);
-//!
 //!         inner
 //!     }
 //! }
