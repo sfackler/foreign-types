@@ -99,6 +99,15 @@ fn build_foreign_impls(crate_: &Path, input: &ForeignType) -> TokenStream {
             fn as_ptr(&self) -> *mut #ctype {
                 <#crate_::export::NonNull<_>>::as_ptr(self.0)
             }
+
+            #[inline]
+            fn into_ptr(self) -> *mut #ctype {
+                let inner = self.as_ptr();
+
+                ::core::mem::forget(self);
+
+                inner
+            }
         }
 
         impl #impl_generics #crate_::ForeignTypeRef for #ref_name #ty_generics {

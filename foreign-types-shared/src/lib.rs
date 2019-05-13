@@ -25,6 +25,9 @@ pub trait ForeignType: Sized {
 
     /// Returns a raw pointer to the wrapped value.
     fn as_ptr(&self) -> *mut Self::CType;
+
+    /// Consumes the wrapper and returnes the raw pointer
+    fn into_ptr(self) -> *mut Self::CType;
 }
 
 /// A trait implemented by types which reference borrowed foreign types.
@@ -50,27 +53,5 @@ pub trait ForeignTypeRef: Sized {
     #[inline]
     fn as_ptr(&self) -> *mut Self::CType {
         self as *const _ as *mut _
-    }
-}
-
-/// A trait implemented by types which consumes the wrapper and returnes the raw pointer
-pub trait IntoForeignType {
-    /// The raw C type.
-    type CType;
-
-    /// Consumes the wrapper and returnes the raw pointer
-    fn into_ptr(self) -> *mut Self::CType;
-}
-
-impl<T> IntoForeignType for T where T: ForeignType {
-    type CType = T::CType;
-
-    #[inline]
-    fn into_ptr(self) -> *mut Self::CType {
-        let inner = self.as_ptr();
-
-        ::core::mem::forget(self);
-
-        inner
     }
 }
