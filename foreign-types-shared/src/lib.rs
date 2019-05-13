@@ -2,10 +2,11 @@
 
 #![no_std]
 #![warn(missing_docs)]
-#![doc(html_root_url="https://docs.rs/foreign-types-shared/0.2")]
+#![doc(html_root_url = "https://docs.rs/foreign-types-shared/0.2")]
 
 use core::cell::UnsafeCell;
 use core::marker::PhantomData;
+use core::mem;
 
 /// An opaque type used to define `ForeignTypeRef` types.
 ///
@@ -25,6 +26,13 @@ pub trait ForeignType: Sized {
 
     /// Returns a raw pointer to the wrapped value.
     fn as_ptr(&self) -> *mut Self::CType;
+
+    /// Consumes the wrapper and returnes the raw pointer.
+    fn into_ptr(self) -> *mut Self::CType {
+        let ptr = self.as_ptr();
+        mem::forget(self);
+        ptr
+    }
 }
 
 /// A trait implemented by types which reference borrowed foreign types.
