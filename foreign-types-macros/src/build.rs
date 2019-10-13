@@ -85,7 +85,7 @@ fn build_foreign_impls(crate_: &Path, input: &ForeignType) -> TokenStream {
     let phantom_data = input.phantom_data.as_ref().map(|_| quote!(, #crate_::export::PhantomData));
 
     quote! {
-        impl #impl_generics #crate_::ForeignType for #name #ty_generics {
+        unsafe impl #impl_generics #crate_::ForeignType for #name #ty_generics {
             type CType = #ctype;
             type Ref = #ref_name #ty_generics;
 
@@ -101,7 +101,7 @@ fn build_foreign_impls(crate_: &Path, input: &ForeignType) -> TokenStream {
             }
         }
 
-        impl #impl_generics #crate_::ForeignTypeRef for #ref_name #ty_generics {
+        unsafe impl #impl_generics #crate_::ForeignTypeRef for #ref_name #ty_generics {
             type CType = #ctype;
         }
     }

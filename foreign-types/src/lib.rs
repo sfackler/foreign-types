@@ -31,7 +31,7 @@
 //! // from raw C pointers.
 //! pub struct FooRef(Opaque);
 //!
-//! impl ForeignTypeRef for FooRef {
+//! unsafe impl ForeignTypeRef for FooRef {
 //!     type CType = foo_sys::FOO;
 //! }
 //!
@@ -53,7 +53,7 @@
 //!     }
 //! }
 //!
-//! impl ForeignType for Foo {
+//! unsafe impl ForeignType for Foo {
 //!     type CType = foo_sys::FOO;
 //!     type Ref = FooRef;
 //!

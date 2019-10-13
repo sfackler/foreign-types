@@ -14,7 +14,7 @@ use core::mem;
 pub struct Opaque(UnsafeCell<PhantomData<*mut ()>>);
 
 /// A type implemented by wrappers over foreign types.
-pub trait ForeignType: Sized {
+pub unsafe trait ForeignType: Sized {
     /// The raw C type.
     type CType;
 
@@ -37,7 +37,7 @@ pub trait ForeignType: Sized {
 }
 
 /// A trait implemented by types which reference borrowed foreign types.
-pub trait ForeignTypeRef: Sized {
+pub unsafe trait ForeignTypeRef: Sized {
     /// The raw C type.
     type CType;
 
