@@ -11,7 +11,7 @@ use core::mem;
 /// An opaque type used to define `ForeignTypeRef` types.
 ///
 /// A type implementing `ForeignTypeRef` should simply be a newtype wrapper around this type.
-pub struct Opaque(UnsafeCell<PhantomData<*mut ()>>);
+pub struct Opaque(PhantomData<UnsafeCell<*mut ()>>);
 
 /// A type implemented by wrappers over foreign types.
 pub unsafe trait ForeignType: Sized {
