@@ -27,7 +27,8 @@ pub trait ForeignType: Sized {
     /// Returns a raw pointer to the wrapped value.
     fn as_ptr(&self) -> *mut Self::CType;
 
-    /// Consumes the wrapper and returnes the raw pointer.
+    /// Consumes the wrapper and returns the raw pointer.
+    #[inline]
     fn into_ptr(self) -> *mut Self::CType {
         let ptr = self.as_ptr();
         mem::forget(self);
