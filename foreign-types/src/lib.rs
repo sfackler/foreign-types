@@ -106,7 +106,7 @@
 //!
 //! foreign_type! {
 //!     /// A Foo.
-//!     pub type Foo
+//!     pub unsafe type Foo
 //!         : Sync + Send // optional
 //!     {
 //!         type CType = foo_sys::FOO;
@@ -115,7 +115,7 @@
 //!     }
 //!
 //!     /// A Foo with generic parameters.
-//!     pub type GenericFoo<T> {
+//!     pub unsafe type GenericFoo<T> {
 //!         type CType = foo_sys::FOO;
 //!         // This type is added as a `PhantomData` field to handle variance
 //!         // of the parameters. However, it has no impact on trait impls:
@@ -170,13 +170,13 @@
 //!
 //! foreign_type! {
 //!     /// A Foo.
-//!     pub type Foo: Sync + Send {
+//!     pub unsafe type Foo: Sync + Send {
 //!         type CType = foo_sys::FOO;
 //!         fn drop = foo_sys::FOO_free;
 //!     }
 //!
 //!     /// A Bar.
-//!     pub type Bar: Sync + Send {
+//!     pub unsafe type Bar: Sync + Send {
 //!         type CType = foo_sys::BAR;
 //!         fn drop = foo_sys::BAR_free;
 //!     }
@@ -231,14 +231,14 @@ pub mod export {
 /// # mod foo_sys { pub type THING = (); pub unsafe fn THING_free(_: *mut THING) {} }
 /// foreign_type! {
 ///     /// Documentation for the owned type.
-///     pub type Ssl: Sync + Send {
+///     pub unsafe type Ssl: Sync + Send {
 ///         type CType = openssl_sys::SSL;
 ///         fn drop = openssl_sys::SSL_free;
 ///         fn clone = openssl_sys::SSL_dup;
 ///     }
 ///
 ///     /// This type immutably borrows other data and has a limited lifetime!
-///     pub type Thing<'a>: Send {
+///     pub unsafe type Thing<'a>: Send {
 ///         type CType = foo_sys::THING;
 ///         type PhantomData = &'a ();
 ///         fn drop = foo_sys::THING_free;

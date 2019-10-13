@@ -45,6 +45,7 @@ impl Parse for ForeignType {
     fn parse(input: ParseStream) -> parse::Result<ForeignType> {
         let attrs = input.call(Attribute::parse_outer)?;
         let visibility = input.parse()?;
+        input.parse::<Token![unsafe]>()?;
         input.parse::<Token![type]>()?;
         let name = input.parse()?;
         let generics = input.parse()?;
