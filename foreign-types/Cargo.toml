@@ -13,5 +13,5 @@ default = ["std"]
 std = ["foreign-types-macros/std"]
 
 [dependencies]
-foreign-types-macros = { version = "0.1", path = "../foreign-types-macros" }
+foreign-types-macros = { version = "0.2", path = "../foreign-types-macros" }
 foreign-types-shared = { version = "0.3", path = "../foreign-types-shared" }
