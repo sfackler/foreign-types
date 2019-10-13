@@ -92,8 +92,7 @@
 //! The `foreign_type!` macro can generate this boilerplate for you:
 //!
 //! ```
-//! #[macro_use]
-//! extern crate foreign_types;
+//! use foreign_types::foreign_type;
 //!
 //! mod foo_sys {
 //!     pub enum FOO {}
@@ -152,10 +151,7 @@
 //! modify the `FOO`, so we'll define a pair of accessor methods, one immutable and one mutable:
 //!
 //! ```
-//! #[macro_use]
-//! extern crate foreign_types;
-//!
-//! use foreign_types::ForeignTypeRef;
+//! use foreign_types::{ForeignTypeRef, foreign_type};
 //!
 //! mod foo_sys {
 //!     pub enum FOO {}
@@ -224,8 +220,7 @@ pub mod export {
 /// # Examples
 ///
 /// ```
-/// #[macro_use]
-/// extern crate foreign_types;
+/// use foreign_types::foreign_type;
 ///
 /// # mod openssl_sys { pub type SSL = (); pub unsafe fn SSL_free(_: *mut SSL) {} pub unsafe fn SSL_dup(x: *mut SSL) -> *mut SSL {x} }
 /// # mod foo_sys { pub type THING = (); pub unsafe fn THING_free(_: *mut THING) {} }
