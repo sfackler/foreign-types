@@ -51,6 +51,7 @@ fn build_decls(crate_: &Path, input: &ForeignType) -> TokenStream {
 
     quote! {
         #(#attrs)*
+        #[repr(transparent)]
         #vis struct #name #generics(#crate_::export::NonNull<#ctype> #phantom_data);
 
         #[doc = #ref_docs]
