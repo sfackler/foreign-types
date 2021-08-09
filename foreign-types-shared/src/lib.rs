@@ -14,6 +14,16 @@ use core::mem;
 pub struct Opaque(PhantomData<UnsafeCell<*mut ()>>);
 
 /// A type implemented by wrappers over foreign types.
+///
+/// # Safety
+/// Any implementor of `ForeignType` must guarantee the following:
+/// - `Self::from_ptr(x).to_ptr() == x`
+/// - `Self::from_ptr(x).into_ptr(x) == x`
+/// - `Self::from_ptr(x).deref().as_ptr(x) == x`
+/// - `Self::from_ptr(x).deref_mut().as_ptr(x) == x`
+/// - `Self::from_ptr(x).as_ref().as_ptr(x) == x`
+/// - `Self::from_ptr(x).as_mut().as_ptr(x) == x`
+
 pub unsafe trait ForeignType: Sized {
     /// The raw C type.
     type CType;
