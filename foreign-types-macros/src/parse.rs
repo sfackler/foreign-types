@@ -1,7 +1,7 @@
 use syn::parse::{self, Parse, ParseStream};
 use syn::punctuated::Punctuated;
 use syn::token;
-use syn::{braced, Attribute, ExprPath, Generics, Ident, Path, Token, Type, Visibility};
+use syn::{braced, Attribute, Expr, Generics, Ident, Path, Token, Type, Visibility};
 
 mod kw {
     syn::custom_keyword!(Sync);
@@ -37,8 +37,8 @@ pub struct ForeignType {
     pub oibits: Punctuated<Ident, Token![+]>,
     pub phantom_data: Option<Type>,
     pub ctype: Type,
-    pub drop: ExprPath,
-    pub clone: Option<ExprPath>,
+    pub drop: Expr,
+    pub clone: Option<Expr>,
 }
 
 impl Parse for ForeignType {
@@ -119,7 +119,7 @@ fn parse_phantom_data(input: ParseStream) -> parse::Result<Option<Type>> {
     }
 }
 
-fn parse_fn<T>(input: ParseStream) -> parse::Result<ExprPath>
+fn parse_fn<T>(input: ParseStream) -> parse::Result<Expr>
 where
     T: Parse,
 {
@@ -131,7 +131,7 @@ where
     Ok(path)
 }
 
-fn parse_clone(input: ParseStream) -> parse::Result<Option<ExprPath>> {
+fn parse_clone(input: ParseStream) -> parse::Result<Option<Expr>> {
     if input.peek(Token![fn]) && input.peek2(kw::clone) {
         input.call(parse_fn::<kw::clone>).map(Some)
     } else {

@@ -130,7 +130,7 @@ fn build_drop_impl(crate_: &Path, input: &ForeignType) -> TokenStream {
             #[inline]
             fn drop(&mut self) {
                 unsafe {
-                    #drop(#crate_::ForeignType::as_ptr(self));
+                    (#drop)(#crate_::ForeignType::as_ptr(self));
                 }
             }
         }
@@ -222,7 +222,7 @@ fn build_clone_impl(crate_: &Path, input: &ForeignType) -> TokenStream {
             #[inline]
             fn clone(&self) -> #name #ty_generics {
                 unsafe {
-                    let ptr = #clone(#crate_::ForeignType::as_ptr(self));
+                    let ptr = (#clone)(#crate_::ForeignType::as_ptr(self));
                     #crate_::ForeignType::from_ptr(ptr)
                 }
             }
@@ -247,7 +247,7 @@ fn build_to_owned_impl(crate_: &Path, input: &ForeignType) -> TokenStream {
             #[inline]
             fn to_owned(&self) -> #name #ty_generics {
                 unsafe {
-                    let ptr = #clone(#crate_::ForeignTypeRef::as_ptr(self));
+                    let ptr = (#clone)(#crate_::ForeignTypeRef::as_ptr(self));
                     #crate_::ForeignType::from_ptr(ptr)
                 }
             }
