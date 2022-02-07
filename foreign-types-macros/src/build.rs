@@ -1,15 +1,18 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Path, Ident};
+use syn::{Ident, Path};
 
-use crate::parse::{Input, ForeignType};
+use crate::parse::{ForeignType, Input};
 
 fn ref_name(input: &ForeignType) -> Ident {
     Ident::new(&format!("{}Ref", input.name), input.name.span())
 }
 
 pub fn build(input: Input) -> TokenStream {
-    let types = input.types.iter().map(|t| build_foreign_type(&input.crate_, t));
+    let types = input
+        .types
+        .iter()
+        .map(|t| build_foreign_type(&input.crate_, t));
     quote! {
         #(#types)*
     }
@@ -45,9 +48,15 @@ fn build_decls(crate_: &Path, input: &ForeignType) -> TokenStream {
     let name = &input.name;
     let generics = &input.generics;
     let ctype = &input.ctype;
-    let phantom_data = input.phantom_data.as_ref().map(|d| quote!(, #crate_::export::PhantomData<#d>));
+    let phantom_data = input
+        .phantom_data
+        .as_ref()
+        .map(|d| quote!(, #crate_::export::PhantomData<#d>));
     let ref_name = ref_name(input);
-    let ref_docs = format!("A borrowed reference to a [`{name}`](struct.{}.html).", name = name);
+    let ref_docs = format!(
+        "A borrowed reference to a [`{name}`](struct.{}.html).",
+        name = name
+    );
 
     quote! {
         #(#attrs)*
@@ -83,7 +92,10 @@ fn build_foreign_impls(crate_: &Path, input: &ForeignType) -> TokenStream {
     let ctype = &input.ctype;
     let ref_name = ref_name(input);
     let (impl_generics, ty_generics, _) = input.generics.split_for_impl();
-    let phantom_data = input.phantom_data.as_ref().map(|_| quote!(, #crate_::export::PhantomData));
+    let phantom_data = input
+        .phantom_data
+        .as_ref()
+        .map(|_| quote!(, #crate_::export::PhantomData));
 
     quote! {
         unsafe impl #impl_generics #crate_::ForeignType for #name #ty_generics {

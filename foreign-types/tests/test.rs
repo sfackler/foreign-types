@@ -4,7 +4,9 @@ mod foo_sys {
     pub enum FOO {}
 
     pub unsafe extern "C" fn foo_drop(_: *mut FOO) {}
-    pub unsafe extern "C" fn foo_clone(ptr: *mut FOO) -> *mut FOO { ptr }
+    pub unsafe extern "C" fn foo_clone(ptr: *mut FOO) -> *mut FOO {
+        ptr
+    }
 }
 
 foreign_type! {
