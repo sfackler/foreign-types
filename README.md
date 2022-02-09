@@ -1,6 +1,6 @@
 # foreign-types
 
-[![CircleCI](https://circleci.com/gh/sfackler/foreign-types.svg?style=shield)](https://circleci.com/gh/sfackler/foreign-types)
+[![Build Status](https://github.com/sfackler/foreign-types/workflows/CI/badge.svg)](https://github.com/sfackler/foreign-types/actions/workflows/ci.yml)
 
 [Documentation](https://docs.rs/foreign-types)
 
