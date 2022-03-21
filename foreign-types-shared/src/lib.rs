@@ -16,14 +16,14 @@ pub struct Opaque(PhantomData<UnsafeCell<*mut ()>>);
 /// A type implemented by wrappers over foreign types.
 ///
 /// # Safety
-/// Any implementor of `ForeignType` must guarantee the following:
-/// - `Self::from_ptr(x).to_ptr() == x`
+///
+/// Implementations of `ForeignType` must guarantee the following:
+/// - `Self::from_ptr(x).as_ptr() == x`
 /// - `Self::from_ptr(x).into_ptr(x) == x`
 /// - `Self::from_ptr(x).deref().as_ptr(x) == x`
 /// - `Self::from_ptr(x).deref_mut().as_ptr(x) == x`
 /// - `Self::from_ptr(x).as_ref().as_ptr(x) == x`
 /// - `Self::from_ptr(x).as_mut().as_ptr(x) == x`
-
 pub unsafe trait ForeignType: Sized {
     /// The raw C type.
     type CType;
@@ -32,6 +32,10 @@ pub unsafe trait ForeignType: Sized {
     type Ref: ForeignTypeRef<CType = Self::CType>;
 
     /// Constructs an instance of this type from its raw type.
+    ///
+    /// # Safety
+    ///
+    /// `ptr` must be a valid, owned instance of the native type.
     unsafe fn from_ptr(ptr: *mut Self::CType) -> Self;
 
     /// Returns a raw pointer to the wrapped value.
@@ -47,11 +51,22 @@ pub unsafe trait ForeignType: Sized {
 }
 
 /// A trait implemented by types which reference borrowed foreign types.
+///
+/// # Safety
+///
+/// Implementations of `ForeignTypeRef` must guarantee the following:
+///
+/// - `Self::from_ptr(x).as_ptr() == x`
+/// - `Self::from_mut_ptr(x).as_ptr() == x`
 pub unsafe trait ForeignTypeRef: Sized {
     /// The raw C type.
     type CType;
 
     /// Constructs a shared instance of this type from its raw type.
+    ///
+    /// # Safety
+    ///
+    /// `ptr` must be a valid, immutable, instance of the type for the `'a` lifetime.
     #[inline]
     unsafe fn from_ptr<'a>(ptr: *mut Self::CType) -> &'a Self {
         debug_assert!(!ptr.is_null());
@@ -59,6 +74,10 @@ pub unsafe trait ForeignTypeRef: Sized {
     }
 
     /// Constructs a mutable reference of this type from its raw type.
+    ///
+    /// # Safety
+    ///
+    /// `ptr` must be a valid, unique, instance of the type for the `'a` lifetime.
     #[inline]
     unsafe fn from_ptr_mut<'a>(ptr: *mut Self::CType) -> &'a mut Self {
         debug_assert!(!ptr.is_null());
