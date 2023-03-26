@@ -54,7 +54,7 @@ fn build_decls(crate_: &Path, input: &ForeignType) -> TokenStream {
         .map(|d| quote!(, #crate_::export::PhantomData<#d>));
     let ref_name = ref_name(input);
     let ref_docs = format!(
-        "A borrowed reference to a [`{name}`](struct.{}.html).",
+        "A borrowed reference to a [`{name}`](struct.{name}.html).",
         name = name
     );
 
