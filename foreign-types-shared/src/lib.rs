@@ -89,4 +89,10 @@ pub unsafe trait ForeignTypeRef: Sized {
     fn as_ptr(&self) -> *mut Self::CType {
         self as *const _ as *mut _
     }
+
+    /// Returns a raw pointer to the wrapped value.
+    #[inline]
+    fn as_mut_ptr(&mut self) -> *mut Self::CType {
+        self as *mut _ as *mut _
+    }
 }
